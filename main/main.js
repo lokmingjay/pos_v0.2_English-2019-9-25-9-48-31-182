@@ -2,22 +2,24 @@
 
 function printReceipt(inputs) {
 
-  let itemDetailList = decodeItem(inputs)
+  let itemDetailList = decodeItems(inputs)
   let subTotalList = getSubTotalList(itemDetailList)
   let totalPrice = getTotalPrice(subTotalList)
 
   console.log(ReceiptFormatter(subTotalList, totalPrice))
 }
 
-function decodeItem(inputs) {
+function decodeItems(inputs) {
   let itemCountList = getItemCount(inputs)
   let itemDetailList = getItemDetailList(itemCountList)
   return itemDetailList
 }
 
 function ReceiptFormatter(subTotalList, totalPrice) {
+  let head = ""
   let content = ""
-  content += "***<store earning no money>Receipt ***\n"
+  let summary = ""
+  head += "***<store earning no money>Receipt ***\n"
   for (let item in subTotalList) {
     let quan = subTotalList[item]['count']
     let name = subTotalList[item]['name']
@@ -33,19 +35,17 @@ function ReceiptFormatter(subTotalList, totalPrice) {
     content += "Name：" + name + "，Quantity：" + quan + " " + unit + "，Unit：" + price + " (yuan)，Subtotal：" + subtotal + " (yuan)\n"
 
   }
-  content += "----------------------\n"
-  content += "总计：" + totalPrice + " (yuan)\n"
-  content += "**********************"
+  summary += "----------------------\n"
+  summary += "总计：" + totalPrice + " (yuan)\n"
+  summary += "**********************"
 
-
-  return content
+  return head + content + summary
 }
 
 function getTotalPrice(subTotalList) {
   let sum = 0
   subTotalList.forEach(element => {
     sum += Number(element['subtotal'])
-
   })
   sum = sum.toFixed(2)
   return sum
@@ -53,7 +53,7 @@ function getTotalPrice(subTotalList) {
 
 function getSubTotalList(itemDetailList) {
   for (let item in itemDetailList) {
-
+    // assign to the variable
     itemDetailList[item]['subtotal'] = itemDetailList[item]['count'] * itemDetailList[item]['price']
     itemDetailList[item]['subtotal'] = Number(itemDetailList[item]['subtotal']).toFixed(2)
   }
@@ -66,29 +66,22 @@ function getItemCount(inputs) {
     itemCountList[inputs[key]] = (itemCountList[inputs[key]] || 0) + 1
   }
 
-  for (let key in itemCountList) {
-    // console.log( key + "  " + itemCountList[key] )
-  }
+
   return itemCountList
 }
 
 function getItemDetailList(itemCountList) {
 
-  let DbDetailList = loadAllItems()
+  let dbDetailList = loadAllItems()
   let itemDetailList = []
+
   for (let key in itemCountList) {
-    // if(DbDetailList)
-    for (let item in DbDetailList) {
-      if (key == DbDetailList[item]['barcode']) {
-        DbDetailList[item]['count'] = itemCountList[key]
-        itemDetailList.push(DbDetailList[item])
-
+    for (let item in dbDetailList) {
+      if (key == dbDetailList[item]['barcode']) {
+        dbDetailList[item]['count'] = itemCountList[key]
+        itemDetailList.push(dbDetailList[item])
       }
-
     }
-
   }
-
-
   return itemDetailList
 }
